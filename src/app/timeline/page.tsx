@@ -1,10 +1,11 @@
-import { redis } from '@/database/redis.client';
-import { redirect } from 'next/navigation';
+import { getTimelineFromCache } from '@/service/ai_func';
+import TimelineWrapper from '@/components/timeline-item/timeline-wrapper';
 
 const TimeLineResPage = async ({ searchParams }: { searchParams: { keyword: string } }) => {
+  const template: string = 'trasync ee1';
   const { keyword } = searchParams;
 
-  const cachedResult = await redis.get(keyword);
+  const cachedResult = await getTimelineFromCache(keyword);
 
   if (!cachedResult) {
     return (
@@ -15,22 +16,15 @@ const TimeLineResPage = async ({ searchParams }: { searchParams: { keyword: stri
   }
 
   const result = JSON.parse(cachedResult);
-  console.log(result);
+  // todo 对序列化失败的处理
 
   return (
     <div className='flex flex-col justify-start items-center'>
-      {
-        result.items.map((item: { year: string; content: string; description: string }, index: number) => {
-          console.log(item);
-          return (
-            <div key={item.year + index.toString()}>
-              <div className='text-2xl font-bold'>{item.year}</div>
-              <div className='text-xl font-bold'>{item.content}</div>
-              <div className='text-lg'>{item.description}</div>
-            </div>
-          );
-        })
-      }
+      <div className='text-4xl font-bold'>{keyword}</div>
+      <TimelineWrapper
+        template={template}
+        result={result}
+      />
     </div>
   );
 };

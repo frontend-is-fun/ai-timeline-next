@@ -12,6 +12,16 @@ export interface AIResponse {
   result: string;
 }
 
+export interface TimeLineItem {
+  year: string;
+  content: string;
+  description: string;
+}
+
+export interface TimeLine {
+  items: TimeLineItem[];
+}
+
 const genTimelinePrompt = (content: string): string => {
   const prompt = `请根据时间线按照给定的json数组格式列出 ${content} 的发展历史，每行一条内容，包含简要标题和对事件的描述。输出格式的类型如下：\n
 
@@ -80,4 +90,11 @@ const TimelineGenerate = async (req: AIRequest): Promise<AIResponse> => {
   }
 };
 
-export { TimelineGenerate };
+const getTimelineFromCache = async (keyword: string): Promise<string | null> => {
+  'use server';
+
+  const cachedResult = await redis.get(keyword);
+  return cachedResult;
+};
+
+export { TimelineGenerate, getTimelineFromCache };
